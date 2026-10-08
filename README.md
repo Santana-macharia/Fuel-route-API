@@ -10,13 +10,13 @@ the cost-optimal fuel stops along it (500-mile range), and the total fuel spend 
 
 ## Quick start
 
-```bash
-python -m venv .venv && source .venv/bin/activate     # Python 3.12+ (Django 6.1 requirement)
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+python manage.py test
 python manage.py migrate
-python manage.py import_stations                      # downloads Census gazetteer (~1 MB), geocodes, loads DB
+python manage.py import_stations
 python manage.py runserver
-```
 
 `import_stations` writes `data/stations_geocoded.csv`. Once that file is committed, anyone can skip the
 download with `python manage.py import_stations --from-geocoded`.
