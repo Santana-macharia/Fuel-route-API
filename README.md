@@ -10,6 +10,7 @@ the cost-optimal fuel stops along it (500-mile range), and the total fuel spend 
 
 ## Quick start
 
+
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
