@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "Fuel Route API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Cross-country (NYC -> LA)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test(\"has stops, cost, route, map\", () => { pm.expect(b).to.have.keys(\"start\",\"finish\",\"distance_miles\",\"duration_hours\",\"total_fuel_cost\",\"total_gallons_purchased\",\"gallons_needed_for_trip\",\"fuel_stops\",\"route\",\"assumptions\",\"meta\",\"map_url\"); });",
+              "pm.test(\"each stop within 500 mi of the previous\", () => { let prev = 0; b.fuel_stops.forEach(s => { pm.expect(s.route_mile - prev).to.be.at.most(500.5); prev = s.route_mile; }); });",
+              "pm.test(\"fast (< 2s)\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
+        },
+        "description": "First call: 2 geocodes + 1 OSRM route. Send it twice to see the cache (0 external calls)."
+      }
+    },
+    {
+      "name": "Using coordinates (Chicago -> Dallas)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test(\"has stops, cost, route, map\", () => { pm.expect(b).to.have.keys(\"start\",\"finish\",\"distance_miles\",\"duration_hours\",\"total_fuel_cost\",\"total_gallons_purchased\",\"gallons_needed_for_trip\",\"fuel_stops\",\"route\",\"assumptions\",\"meta\",\"map_url\"); });",
+              "pm.test(\"each stop within 500 mi of the previous\", () => { let prev = 0; b.fuel_stops.forEach(s => { pm.expect(s.route_mile - prev).to.be.at.most(500.5); prev = s.route_mile; }); });",
+              "pm.test(\"fast (< 2s)\", () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"41.8781,-87.6298\",\n  \"finish\": \"32.7767,-96.7970\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
+        },
+        "description": "lat,lng input skips geocoding: exactly 1 external call."
+      }
+    },
+    {
+      "name": "Short trip, no stop needed",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+              "pm.test(\"no fuel stop, zero cost\", () => { const b = pm.response.json(); pm.expect(b.fuel_stops).to.have.lengthOf(0); pm.expect(b.total_fuel_cost).to.eql(0); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Dallas, TX\",\n  \"finish\": \"Austin, TX\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
+        },
+        "description": ""
+      }
+    },
+    {
+      "name": "Validation: outside the USA",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"400 for non-US location\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"48.8566,2.3522\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
+        },
+        "description": ""
+      }
+    }
+  ]
+}
