@@ -11,6 +11,7 @@ the cost-optimal fuel stops along it (500-mile range), and the total fuel spend 
 ## Quick start
 
 
+```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -18,6 +19,7 @@ python manage.py test
 python manage.py migrate
 python manage.py import_stations
 python manage.py runserver
+```
 
 `import_stations` writes `data/stations_geocoded.csv`. Once that file is committed, anyone can skip the
 download with `python manage.py import_stations --from-geocoded`.
